@@ -8,13 +8,13 @@ router.get('/', (req, res) => {
     res.render('pages/index')
 })
 
-router.post('/productos', (req, res) => {
-    productos.save(req.body)
+router.post('/productos', async (req, res) => {
+    await productos.save(req.body)
     res.redirect('/')
 })
 
-router.get('/productos', (req, res) =>{
-    const db = productos.getAll()
+router.get('/productos', async (req, res) =>{
+    const db = await productos.getAll()
     res.render('pages/listado', {productos: db})
 })
 

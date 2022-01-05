@@ -21,19 +21,25 @@ class Contenedor{
                 if(res.length == 0){
                     o.id = 1
                     db.push(o)
+                    await fs.promises.writeFile(this.archivo, JSON.stringify(db))
+                    return o
                 }else {
                     db = JSON.parse(res)
                     o.id = db[db.length - 1].id + 1
                     db.push(o)
+                    await fs.promises.writeFile(this.archivo, JSON.stringify(db))
+                    return o
                 }
-                await fs.promises.writeFile(this.archivo, JSON.stringify(db))
+                
             }
             catch (err) {
                 console.log(`${err} No se encuentra el archivo ${this.archivo}, se procede a crearlo`)
                 await fs.promises.writeFile(this.archivo, '')
             }
         }
-        escribirProductos().then(res => res)
+        
+        let respuesta = escribirProductos().then((res) => {return res})
+        return respuesta
 
     }
 
@@ -44,16 +50,16 @@ class Contenedor{
                 const res = await fs.promises.readFile(this.archivo, 'UTF-8')
             
                 if (res.length == 0) {
-                    return console.log('El contenedor esta vacio')
+                    return {error: 'El contenedor esta vacio'}
                 } else {
                     const objetos = JSON.parse(res)
                     let filtroId = objetos.filter(el => el.id == n)
                     if (!filtroId.length) {
-                        console.log(`No se encontraron objetos con id ${n}`)
+                        //console.log(`No se encontraron objetos con id ${n}`)
                         return {error: 'producto no encontrado'}
                     } else {
-                        console.log(`Resultado de la busqueda> ${JSON.stringify(filtroId)}`)
-                        return filtroId
+                        //console.log(`Resultado de la busqueda> ${JSON.stringify(filtroId)}`)
+                        return filtroId[0]
                     }
                 }
             }
@@ -61,7 +67,9 @@ class Contenedor{
                 console.log(err)
             }
         }
-        buscarIdObjetos().then(res => res)
+
+        let response = buscarIdObjetos().then((res) => {return res})
+        return response
 
     }
 
@@ -71,10 +79,10 @@ class Contenedor{
             try {
                 const res = await fs.promises.readFile(this.archivo, 'UTF-8')
                 if (res.length == 0 || res == '[]') {
-                    return console.log('El contenedor esta vacio')
+                    return {error: 'El contenedor esta vacio'}
                 } else {
-                    db = JSON.parse(res)
-                    //console.log(db)
+                    const db = JSON.parse(res)
+                    //console.log(db);
                     return db
                 }
             }
@@ -82,11 +90,10 @@ class Contenedor{
                 console.log(err);
             }
         }
-        recuperarObjetos().then((res) => {res.forEach(element => {
-            db.push(element)
-        })})
 
-        return db       
+        let response = recuperarObjetos().then((res) => {return res})
+        return response
+
     }
 
     deleteById(n){
@@ -99,9 +106,9 @@ class Contenedor{
                 if (filtroId.length) {
                     let objetosRestantes = objetos.filter(el => el.id != n)
                     await fs.promises.writeFile(this.archivo, JSON.stringify(objetosRestantes))
-                    return console.log(`Se ha borrado el objeto ${n}`)
+                    return {correcto: `Se ha borrado el objeto ${n}`}
                 } else  {
-                    console.log(`No se encontraron objetos con id ${n}`)
+                    //console.log(`No se encontraron objetos con id ${n}`)
                     return {error: 'producto no encontrado'}
                 }
             }
@@ -109,7 +116,9 @@ class Contenedor{
                 console.log(err)
             }
         }
-        eliminarIdObjetos().then(res => res)
+
+        let response = eliminarIdObjetos().then((res) => {return res})
+        return response
 
     }
 
@@ -136,23 +145,27 @@ class Contenedor{
                 db = JSON.parse(res)
                 const filtroId = db.filter((el) => {return el.id == n})
                 if(filtroId[0] == undefined){
-                    console.log(`No se encontraron objetos con id ${n}`)
+                    //console.log(`No se encontraron objetos con id ${n}`)
                     return {error: 'producto no encontrado'}
                 }else{
                     o.id = filtroId[0].id
                     filtroId[0] = o
                     db[--n] = filtroId[0]
                     await fs.promises.writeFile(this.archivo, JSON.stringify(db))
-                    console.log(`Se ha actualizado el producto con id ${filtroId[0].id}`)
+                    //console.log(`Se ha actualizado el producto con id ${filtroId[0].id}`)
+                    return {correcto: `se ha actualizado el producto ${filtroId[0].id}`}
                 }            
             }
             catch (err) {
                 console.log(`${err} No se encuentra el archivo ${this.archivo}, se procede a crearlo`)
             }
         }
-        actualizarProductos().then(res => res)
+        
+        let response = actualizarProductos().then((res) => {return res})
+        return response
 
     }
 
 }
+
 export default Contenedor
